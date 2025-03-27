@@ -9,8 +9,6 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 
-import { Button } from '@/components/ui/button'
-
 import { Pie } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -18,18 +16,11 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import { AddTransactionDialog } from '@/components/ui/addtransactiondialog'
+import { useState } from 'react'
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-type Transaction = {
-  id: string
-  title: string
-  amount: number
-  category: string
-  date: string
-  type: 'income' | 'expense'
-}
-
-const transactions: Transaction[] = [
+const initialTransactions: Transaction[] = [
   {
     id: '1',
     title: 'Grocery Shopping',
@@ -56,24 +47,25 @@ const transactions: Transaction[] = [
   },
 ]
 
-const summary = {
-  income: transactions.filter((t) => t.type === 'income').reduce((acc, t) => acc + t.amount, 0),
-  expense: transactions.filter((t) => t.type === 'expense').reduce((acc, t) => acc + Math.abs(t.amount), 0),
-}
-
-const pieData = {
-  labels: ['Groceries', 'Entertainment'],
-  datasets: [
-    {
-      label: 'Expenses',
-      data: [54.75, 12.99],
-      backgroundColor: ['#f87171', '#facc15'],
-      borderWidth: 1,
-    },
-  ],
-}
-
 export default function HomePage() {
+  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions)
+
+  const summary = {
+    income: transactions.filter((t) => t.type === 'income').reduce((acc, t) => acc + t.amount, 0),
+    expense: transactions.filter((t) => t.type === 'expense').reduce((acc, t) => acc + Math.abs(t.amount), 0),
+  }
+
+  const pieData = {
+    labels: ['Groceries', 'Entertainment'],
+    datasets: [
+      {
+        label: 'Expenses',
+        data: [54.75, 12.99],
+        backgroundColor: ['#f87171', '#facc15'],
+        borderWidth: 1,
+      },
+    ],
+  }
   return (
     <main className="flex flex-col items-center gap-6 px-4 py-6">
       <div className="grid w-full max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
@@ -107,7 +99,7 @@ export default function HomePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
-            <Button size="sm">Add</Button>
+            <AddTransactionDialog onAdd={(newTx) => setTransactions([...transactions, newTx])} />
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[400px] pr-4">
